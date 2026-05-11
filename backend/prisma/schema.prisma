@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Alert {
+  id                     String              @id @default(cuid())
+  title                  String
+  description            String
+  source                 String
+  service                String
+  /// Allowed values: Low, Medium, High, Critical
+  severity               String
+  /// Allowed values: New, Acknowledged, Investigating, Closed
+  status                 String              @default("New")
+  triggeredAt            DateTime
+  acknowledgedBy         String?
+  investigationStartedAt DateTime?
+  lastUpdatedBy          String?
+  relatedIncidentId      String?             @unique
+  shiftDate              DateTime
+  tags                   String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  sourceIncident         Incident?
+  investigationNotes     InvestigationNote[]
+
+  @@index([status])
+  @@index([severity])
+  @@index([source])
+  @@index([service])
+  @@index([triggeredAt])
+}
+
+model Incident {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  /// Allowed values: Infrastructure, Network, Application, Security, Database, Third-Party, Other
+  category        String
+  /// Allowed values: Low, Medium, High, Critical
+  severity        String
+  /// Allowed values: Open, Investigating, Monitoring, Resolved, Closed
+  status          String   @default("Open")
+  affectedService String
+  /// Allowed values: Production, Staging, Internal, Other
+  environment     String
+  reportedBy      String
+  assignedTo      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  resolvedAt      DateTime?
+  sourceAlertId   String?  @unique
+  sourceAlert     Alert?   @relation(fields: [sourceAlertId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([severity])
+  @@index([category])
+  @@index([affectedService])
+  @@index([createdAt])
+}
+
+model InvestigationNote {
+  id        String   @id @default(cuid())
+  alertId   String
+  message   String
+  /// Allowed values: Note, Action, Escalation, Update
+  type      String
+  createdBy String
+  createdAt DateTime @default(now())
+  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@index([alertId, createdAt])
+}
