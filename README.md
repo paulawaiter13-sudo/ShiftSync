@@ -46,3 +46,4 @@ npm run dev:frontend
 ```bash
 npm run build
 ```
+# ShiftSync
