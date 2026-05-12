@@ -12,9 +12,13 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173'
-    })
-  );
+        origin: [
+          'http://localhost:5173',
+          process.env.FRONTEND_ORIGIN || ''
+        ],
+        credentials: true
+      })
+    );
   app.use(helmet());
   app.use(express.json());
   app.use(morgan('dev'));
