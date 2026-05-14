@@ -1,6 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import type { CreateInvestigationNotePayload } from '../types/alert';
 import { INVESTIGATION_NOTE_TYPES } from '../types/alert';
+import { SectionCard } from './SectionCard';
+
+const fieldClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition placeholder:text-ops-muted/40 focus:border-state-open/45 focus:ring-1 focus:ring-state-open/25 disabled:cursor-not-allowed disabled:opacity-50';
 
 interface AddNoteFormProps {
   createdBy: string;
@@ -42,35 +46,28 @@ export function AddNoteForm({
   };
 
   return (
-    <section className="rounded-[28px] border border-line/80 bg-panel px-5 py-5 shadow-panel">
-      <div>
-        <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-          Add Investigation Note
-        </p>
-        <h2 className="mt-2 font-heading text-2xl font-semibold text-ink">Document activity</h2>
-      </div>
-
-      <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+    <SectionCard eyebrow="Documentation" title="Add note" description="Append to the investigation timeline.">
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
           Message
           <textarea
             required
-            rows={5}
+            rows={4}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             disabled={disabled || submitting}
-            className="rounded-2xl border border-line bg-white px-4 py-3 outline-none transition focus:border-accent disabled:cursor-not-allowed disabled:bg-slate-100"
-            placeholder="Checked logs, reached out to DevOps, restarted worker pool, monitoring metrics..."
+            className={fieldClass}
+            placeholder="Checks performed, vendor comms, mitigation, customer impact…"
           />
         </label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+        <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
           Type
           <select
             value={type}
             onChange={(event) => setType(event.target.value as CreateInvestigationNotePayload['type'])}
             disabled={disabled || submitting}
-            className="rounded-2xl border border-line bg-white px-4 py-3 outline-none transition focus:border-accent disabled:cursor-not-allowed disabled:bg-slate-100"
+            className={fieldClass}
           >
             {INVESTIGATION_NOTE_TYPES.map((noteType) => (
               <option key={noteType} value={noteType}>
@@ -81,7 +78,7 @@ export function AddNoteForm({
         </label>
 
         {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+          <div className="rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-3 py-2 text-sm text-sev-critical">
             {error}
           </div>
         ) : null}
@@ -89,11 +86,11 @@ export function AddNoteForm({
         <button
           type="submit"
           disabled={disabled || submitting}
-          className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-lg bg-state-open px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? 'Adding note...' : 'Add Note'}
+          {submitting ? 'Adding…' : 'Append note'}
         </button>
       </form>
-    </section>
+    </SectionCard>
   );
 }

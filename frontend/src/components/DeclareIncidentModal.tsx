@@ -1,11 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import type { Alert } from '../types/alert';
-import type { CreateIncidentFromAlertPayload } from '../types/incident';
-import {
-  INCIDENT_CATEGORIES,
-  INCIDENT_ENVIRONMENTS
-} from '../types/incident';
 import { ALERT_SEVERITIES } from '../types/alert';
+import type { CreateIncidentFromAlertPayload } from '../types/incident';
+import { INCIDENT_CATEGORIES, INCIDENT_ENVIRONMENTS } from '../types/incident';
 
 interface DeclareIncidentModalProps {
   open: boolean;
@@ -14,6 +11,9 @@ interface DeclareIncidentModalProps {
   onClose: () => void;
   onSubmit: (payload: CreateIncidentFromAlertPayload) => Promise<void>;
 }
+
+const fieldClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition focus:border-sev-critical/45 focus:ring-1 focus:ring-sev-critical/25';
 
 export function DeclareIncidentModal({
   open,
@@ -95,25 +95,20 @@ export function DeclareIncidentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-red-950/45 px-4 py-8">
-      <div className="w-full max-w-3xl rounded-[32px] border border-red-200 bg-white p-6 shadow-panel">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4 py-8 backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-sev-critical/30 bg-ops-panel p-6 shadow-card">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-              Incident Declaration
-            </p>
-            <h3 className="mt-2 font-heading text-2xl font-semibold text-red-950">
-              Declare incident from alert
-            </h3>
-            <p className="mt-2 text-sm text-slate-600">
-              Confirm that this alert is a validated operational incident and capture the incident
-              record with alert context already attached.
+            <p className="text-2xs font-bold uppercase tracking-widest text-sev-critical">Declare incident</p>
+            <h3 className="mt-1 text-xl font-semibold text-ops-foreground">Promote from alert</h3>
+            <p className="mt-2 text-sm text-ops-muted">
+              Confirmed production issue — incident record will retain alert lineage.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-red-200 px-3 py-2 text-sm font-semibold text-slate-600"
+            className="rounded-lg border border-ops-border px-3 py-1.5 text-sm font-medium text-ops-muted transition hover:text-ops-foreground"
           >
             Close
           </button>
@@ -121,33 +116,33 @@ export function DeclareIncidentModal({
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted md:col-span-2">
               Title
               <input
                 required
                 value={formValues.title}
                 onChange={(event) => handleChange('title', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted md:col-span-2">
               Description
               <textarea
                 required
                 rows={5}
                 value={formValues.description}
                 onChange={(event) => handleChange('description', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Category
               <select
                 value={formValues.category}
                 onChange={(event) => handleChange('category', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               >
                 {INCIDENT_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
@@ -157,12 +152,12 @@ export function DeclareIncidentModal({
               </select>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Environment
               <select
                 value={formValues.environment}
                 onChange={(event) => handleChange('environment', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               >
                 {INCIDENT_ENVIRONMENTS.map((environment) => (
                   <option key={environment} value={environment}>
@@ -172,12 +167,12 @@ export function DeclareIncidentModal({
               </select>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Severity
               <select
                 value={formValues.severity}
                 onChange={(event) => handleChange('severity', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               >
                 {ALERT_SEVERITIES.map((severity) => (
                   <option key={severity} value={severity}>
@@ -187,60 +182,61 @@ export function DeclareIncidentModal({
               </select>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
-              Affected Service
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
+              Affected service
               <input
                 required
                 value={formValues.affectedService}
                 onChange={(event) => handleChange('affectedService', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
+                className={fieldClass}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
-              Assigned To
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
+              Assigned to
               <input
                 value={formValues.assignedTo}
                 onChange={(event) => handleChange('assignedTo', event.target.value)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none focus:border-red-400"
-                placeholder="DevOps On-Call"
+                className={fieldClass}
+                placeholder="DevOps on-call"
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
-              Reported By
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
+              Reported by
               <input
                 value={reportedBy}
                 readOnly
-                className="rounded-2xl border border-red-100 bg-slate-50 px-4 py-3 text-slate-500"
+                className="cursor-not-allowed rounded-lg border border-ops-border bg-ops-elevated/50 px-3 py-2.5 text-sm text-ops-muted"
               />
             </label>
 
-            <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-800 md:col-span-2">
-              Source alert: <span className="font-semibold">{alert.title}</span> from {alert.source}
+            <div className="rounded-lg border border-ops-border bg-ops-canvas/50 px-3 py-2 text-sm text-ops-muted md:col-span-2">
+              Source alert: <span className="font-medium text-ops-foreground">{alert.title}</span> ·{' '}
+              {alert.source}
             </div>
           </div>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+            <div className="rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-3 py-2 text-sm text-sev-critical">
               {error}
             </div>
           ) : null}
 
-          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-2xl border border-red-100 px-5 py-3 text-sm font-semibold text-slate-700"
+              className="rounded-lg border border-ops-border px-4 py-2.5 text-sm font-semibold text-ops-muted transition hover:text-ops-foreground"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-lg bg-sev-critical px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
             >
-              {isSubmitting ? 'Declaring incident...' : 'Declare Incident'}
+              {isSubmitting ? 'Declaring…' : 'Declare incident'}
             </button>
           </div>
         </form>

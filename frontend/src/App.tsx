@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppLayout } from './layouts/AppLayout';
+import { AppShell, type ShellNavId } from './layouts/AppShell';
 import { AlertDetailsPage } from './pages/AlertDetailsPage';
 import { AlertsDashboardPage } from './pages/AlertsDashboardPage';
 import { IncidentDetailsPage } from './pages/IncidentDetailsPage';
@@ -87,14 +87,36 @@ export default function App() {
     });
   };
 
-  const activeView = route.name === 'dashboard' || route.name === 'alert-details' ? 'alerts' : 'incidents';
+  const activeNav: ShellNavId =
+    route.name === 'alert-details'
+      ? 'investigations'
+      : route.name === 'incidents' || route.name === 'incident-details'
+        ? 'incidents'
+        : 'alerts';
+
+  const headerContext: 'alerts' | 'incidents' =
+    route.name === 'incidents' || route.name === 'incident-details' ? 'incidents' : 'alerts';
+
+  const handleNavSelect = (id: ShellNavId) => {
+    if (id === 'incidents') {
+      navigateToIncidents();
+      return;
+    }
+
+    if (id === 'alerts') {
+      navigateToDashboard();
+      return;
+    }
+
+    if (id === 'investigations') {
+      if (route.name !== 'alert-details') {
+        navigateToDashboard();
+      }
+    }
+  };
 
   return (
-    <AppLayout
-      activeView={activeView}
-      onNavigateToAlerts={navigateToDashboard}
-      onNavigateToIncidents={navigateToIncidents}
-    >
+    <AppShell activeNav={activeNav} headerContext={headerContext} onNavSelect={handleNavSelect}>
       {route.name === 'dashboard' ? <AlertsDashboardPage onSelectAlert={navigateToAlert} /> : null}
       {route.name === 'alert-details' ? (
         <AlertDetailsPage
@@ -113,6 +135,6 @@ export default function App() {
           onOpenSourceAlert={navigateToAlert}
         />
       ) : null}
-    </AppLayout>
+    </AppShell>
   );
 }

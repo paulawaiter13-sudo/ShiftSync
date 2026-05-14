@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SectionCard } from '../components/SectionCard';
 import { IncidentBadge } from '../components/IncidentBadge';
 import { fetchIncidentById, updateIncidentStatus } from '../services/incidents';
 import type { Incident, IncidentStatus } from '../types/incident';
@@ -11,6 +12,9 @@ const timestampFormatter = new Intl.DateTimeFormat('en-US', {
   hour: 'numeric',
   minute: '2-digit'
 });
+
+const fieldClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition focus:border-state-open/45 focus:ring-1 focus:ring-state-open/25';
 
 interface IncidentDetailsPageProps {
   incidentId: string;
@@ -80,16 +84,16 @@ export function IncidentDetailsPage({
 
   if (isLoading) {
     return (
-      <div className="rounded-[28px] border border-red-200/80 bg-white px-6 py-8 shadow-panel">
-        <div className="h-12 w-52 animate-pulse rounded-2xl bg-slate-200" />
-        <div className="mt-6 h-52 animate-pulse rounded-[28px] bg-slate-200" />
+      <div className="space-y-4">
+        <div className="h-16 animate-pulse rounded-xl bg-ops-panel shadow-[inset_0_0_0_1px_rgba(239,68,68,0.15)]" />
+        <div className="h-52 animate-pulse rounded-xl bg-ops-panel" />
       </div>
     );
   }
 
   if (!incident) {
     return (
-      <div className="rounded-[28px] border border-red-200 bg-red-50 px-6 py-6 text-sm text-danger shadow-panel">
+      <div className="rounded-xl border border-sev-critical/35 bg-sev-critical/10 px-5 py-5 text-sm text-sev-critical">
         {error ?? 'Incident not found'}
       </div>
     );
@@ -97,120 +101,108 @@ export function IncidentDetailsPage({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[28px] border border-red-200/80 bg-white px-6 py-6 shadow-panel">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-          <div>
+      <div className="rounded-xl border border-sev-critical/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.12),transparent_50%)] p-5 shadow-card md:p-6">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+          <div className="min-w-0 flex-1">
             <button
               type="button"
               onClick={onBack}
-              className="rounded-full border border-red-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 transition hover:border-red-300 hover:text-red-800"
+              className="rounded-lg border border-ops-border bg-ops-panel/80 px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider text-ops-muted transition hover:text-ops-foreground"
             >
-              Back to Incidents
+              ← Incidents
             </button>
-            <p className="mt-5 font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-              Incident Record
-            </p>
-            <h1 className="mt-2 font-heading text-4xl font-semibold text-red-950">
+            <p className="mt-4 text-2xs font-bold uppercase tracking-widest text-sev-critical">Incident record</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ops-foreground md:text-3xl">
               {incident.title}
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">{incident.description}</p>
-          </div>
-
-          <div className="rounded-[24px] border border-red-100 bg-red-50 px-5 py-5 xl:min-w-[340px]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-700/70">
-              Declared
-            </p>
-            <p className="mt-2 font-heading text-lg text-red-950">
-              {timestampFormatter.format(new Date(incident.createdAt))}
-            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ops-muted">{incident.description}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <IncidentBadge type="severity" value={incident.severity} />
               <IncidentBadge type="status" value={incident.status} />
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr),minmax(320px,0.9fr)]">
-        <div className="space-y-4">
-          <section className="rounded-[28px] border border-red-200/80 bg-white px-6 py-6 shadow-panel">
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-              Metadata
+          <div className="w-full shrink-0 rounded-lg border border-ops-border bg-ops-panel/90 p-4 xl:w-80">
+            <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Declared</p>
+            <p className="mt-1 font-mono text-sm font-medium text-ops-foreground">
+              {timestampFormatter.format(new Date(incident.createdAt))}
             </p>
-            <dl className="mt-4 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+            <p className="mt-3 text-2xs text-ops-muted">Environment</p>
+            <p className="mt-0.5 text-sm font-semibold text-ops-foreground">{incident.environment}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr),360px]">
+        <div className="space-y-4">
+          <SectionCard eyebrow="Record" title="Metadata" description="Command fields for this incident.">
+            <dl className="grid gap-4 text-sm sm:grid-cols-2">
               <div>
-                <dt className="font-semibold text-ink">Affected Service</dt>
-                <dd className="mt-1">{incident.affectedService}</dd>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                  Affected service
+                </dt>
+                <dd className="mt-1 text-ops-foreground">{incident.affectedService}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-ink">Category</dt>
-                <dd className="mt-1">{incident.category}</dd>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Category</dt>
+                <dd className="mt-1 text-ops-foreground">{incident.category}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-ink">Environment</dt>
-                <dd className="mt-1">{incident.environment}</dd>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Reported by</dt>
+                <dd className="mt-1 text-ops-foreground">{incident.reportedBy}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-ink">Reported By</dt>
-                <dd className="mt-1">{incident.reportedBy}</dd>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Assigned to</dt>
+                <dd className="mt-1 text-ops-foreground">{incident.assignedTo ?? '—'}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-ink">Assigned To</dt>
-                <dd className="mt-1">{incident.assignedTo ?? 'Unassigned'}</dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-ink">Resolved At</dt>
-                <dd className="mt-1">
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Resolved at</dt>
+                <dd className="mt-1 text-ops-foreground">
                   {incident.resolvedAt
                     ? timestampFormatter.format(new Date(incident.resolvedAt))
-                    : 'Not resolved'}
+                    : '—'}
                 </dd>
               </div>
             </dl>
-          </section>
+          </SectionCard>
 
-          <section className="rounded-[28px] border border-red-200/80 bg-white px-6 py-6 shadow-panel">
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-              Source
-            </p>
+          <SectionCard eyebrow="Lineage" title="Source" description="Originating alert when promoted from intake.">
             {incident.sourceAlertId && incident.sourceAlert ? (
-              <div className="mt-4 rounded-[24px] border border-red-100 bg-red-50 px-5 py-5">
-                <p className="text-sm font-semibold text-red-950">{incident.sourceAlert.title}</p>
-                <p className="mt-2 text-sm text-slate-600">{incident.sourceAlert.service}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+              <div className="rounded-lg border border-ops-border bg-ops-canvas/40 p-4">
+                <p className="font-medium text-ops-foreground">{incident.sourceAlert.title}</p>
+                <p className="mt-1 text-sm text-ops-muted">{incident.sourceAlert.service}</p>
+                <div className="mt-3">
                   <IncidentBadge type="severity" value={incident.sourceAlert.severity} />
                 </div>
                 <button
                   type="button"
                   onClick={() => onOpenSourceAlert(incident.sourceAlertId!)}
-                  className="mt-4 rounded-2xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-900 transition hover:bg-white"
+                  className="mt-4 rounded-lg border border-ops-border bg-ops-panel px-4 py-2 text-sm font-semibold text-ops-foreground transition hover:border-state-open/40"
                 >
-                  Open Source Alert
+                  Open source alert
                 </button>
               </div>
             ) : (
-              <p className="mt-4 text-sm text-slate-600">
+              <p className="text-sm text-ops-muted">
                 This incident was created manually and is not linked to an originating alert.
               </p>
             )}
-          </section>
+          </SectionCard>
         </div>
 
         <div className="space-y-4">
-          <section className="rounded-[28px] border border-red-200/80 bg-white px-5 py-5 shadow-panel">
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-              Actions
-            </p>
-            <h2 className="mt-2 font-heading text-2xl font-semibold text-red-950">
-              Update incident state
-            </h2>
-
-            <label className="mt-5 flex flex-col gap-2 text-sm font-medium text-slate-600">
-              Status
+          <SectionCard
+            className="border-sev-critical/25 shadow-[0_0_0_1px_rgba(239,68,68,0.1)]"
+            eyebrow="Command"
+            title="Status"
+            description="Update lifecycle state for stakeholders and paging."
+          >
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
+              Next status
               <select
                 value={selectedStatus}
                 onChange={(event) => setSelectedStatus(event.target.value as IncidentStatus)}
-                className="rounded-2xl border border-red-100 bg-white px-4 py-3 outline-none transition focus:border-red-400"
+                className={fieldClass}
               >
                 {INCIDENT_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -220,33 +212,33 @@ export function IncidentDetailsPage({
               </select>
             </label>
 
-            <div className="mt-5 grid gap-3">
+            <div className="mt-4 grid gap-2">
               <button
                 type="button"
                 onClick={() => void handleSaveStatus(selectedStatus)}
                 disabled={isSaving}
-                className="rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg bg-sev-critical px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
               >
-                {isSaving ? 'Saving status...' : 'Save Status'}
+                {isSaving ? 'Saving…' : 'Save status'}
               </button>
               <button
                 type="button"
                 onClick={() => void handleSaveStatus('Resolved')}
                 disabled={isSaving || incident.status === 'Resolved' || incident.status === 'Closed'}
-                className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg border border-sev-low/35 bg-sev-low/15 px-4 py-2.5 text-sm font-semibold text-sev-low transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isSaving ? 'Updating...' : 'Mark Resolved'}
+                Mark resolved
               </button>
             </div>
-          </section>
+          </SectionCard>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+            <div className="rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-4 py-3 text-sm text-sev-critical">
               {error}
             </div>
           ) : null}
         </div>
-      </section>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AddNoteForm } from '../components/AddNoteForm';
-import { Badge } from '../components/Badge';
 import { DeclareIncidentModal } from '../components/DeclareIncidentModal';
+import { SectionCard } from '../components/SectionCard';
+import { SeverityBadge } from '../components/SeverityBadge';
+import { StatusBadge } from '../components/StatusBadge';
 import { Timeline } from '../components/Timeline';
 import {
   acknowledgeAlert,
@@ -21,6 +23,9 @@ const timestampFormatter = new Intl.DateTimeFormat('en-US', {
   hour: 'numeric',
   minute: '2-digit'
 });
+
+const inputClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition placeholder:text-ops-muted/40 focus:border-state-open/45 focus:ring-1 focus:ring-state-open/25';
 
 interface AlertDetailsPageProps {
   alertId: string;
@@ -171,17 +176,20 @@ export function AlertDetailsPage({
 
   if (isLoading) {
     return (
-      <div className="rounded-[28px] border border-line/80 bg-panel px-6 py-8 shadow-panel">
-        <div className="h-12 w-48 animate-pulse rounded-2xl bg-slate-200" />
-        <div className="mt-6 h-48 animate-pulse rounded-[28px] bg-slate-200" />
-        <div className="mt-6 h-72 animate-pulse rounded-[28px] bg-slate-200" />
+      <div className="space-y-4">
+        <div className="h-14 animate-pulse rounded-xl bg-ops-panel" />
+        <div className="h-40 animate-pulse rounded-xl bg-ops-panel" />
+        <div className="grid gap-4 xl:grid-cols-[1fr,380px]">
+          <div className="h-96 animate-pulse rounded-xl bg-ops-panel" />
+          <div className="h-72 animate-pulse rounded-xl bg-ops-panel" />
+        </div>
       </div>
     );
   }
 
   if (!alert) {
     return (
-      <div className="rounded-[28px] border border-red-200 bg-red-50 px-6 py-6 text-sm text-danger shadow-panel">
+      <div className="rounded-xl border border-sev-critical/35 bg-sev-critical/10 px-5 py-5 text-sm text-sev-critical">
         {error ?? 'Alert not found'}
       </div>
     );
@@ -190,195 +198,171 @@ export function AlertDetailsPage({
   return (
     <>
       <div className="space-y-4">
-        <section className="rounded-[28px] border border-line/80 bg-panel px-6 py-6 shadow-panel">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div>
+        <SectionCard padding="md">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="min-w-0 flex-1">
               <button
                 type="button"
                 onClick={onBack}
-                className="rounded-full border border-line px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 transition hover:border-accent hover:text-accentDark"
+                className="rounded-lg border border-ops-border px-3 py-1.5 text-2xs font-semibold uppercase tracking-wider text-ops-muted transition hover:border-ops-muted/50 hover:text-ops-foreground"
               >
-                Back to Alerts
+                ← Alerts
               </button>
-              <p className="mt-5 font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-                Alert Investigation
+              <p className="mt-4 text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                Alert workspace
               </p>
-              <h1 className="mt-2 font-heading text-4xl font-semibold text-ink">{alert.title}</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">{alert.description}</p>
-            </div>
-
-            <div className="rounded-[24px] border border-line bg-white/70 p-5 xl:min-w-[320px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Triggered
-              </p>
-              <p className="mt-2 font-heading text-lg text-ink">
-                {timestampFormatter.format(new Date(alert.triggeredAt))}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Badge type="severity" value={alert.severity} />
-                <Badge type="status" value={alert.status} />
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ops-foreground md:text-3xl">
+                {alert.title}
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ops-muted">{alert.description}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <SeverityBadge severity={alert.severity} />
+                <StatusBadge domain="alert" status={alert.status} />
+                <span className="rounded-md border border-ops-border bg-ops-elevated px-2.5 py-1 text-2xs font-medium text-ops-muted">
                   {alert.source}
                 </span>
               </div>
             </div>
+
+            <div className="w-full shrink-0 rounded-lg border border-ops-border bg-ops-canvas/40 p-4 xl:w-80">
+              <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Triggered</p>
+              <p className="mt-1 font-mono text-sm font-medium text-ops-foreground">
+                {timestampFormatter.format(new Date(alert.triggeredAt))}
+              </p>
+              <p className="mt-3 text-2xs font-semibold uppercase tracking-wider text-ops-muted">Service</p>
+              <p className="mt-1 text-sm text-ops-foreground">{alert.service}</p>
+            </div>
           </div>
-        </section>
+        </SectionCard>
 
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.8fr),minmax(360px,0.95fr)]">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr),380px]">
           <div className="space-y-4">
-            <section className="rounded-[28px] border border-line/80 bg-panel px-6 py-6 shadow-panel">
-              <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
+            <SectionCard
+              eyebrow="Summary"
+              title="Signal context"
+              description="Immutable intake fields plus investigation ownership."
+            >
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-                    Alert Summary
-                  </p>
-                  <dl className="mt-4 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
-                    <div>
-                      <dt className="font-semibold text-ink">Service</dt>
-                      <dd className="mt-1">{alert.service}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-ink">Source</dt>
-                      <dd className="mt-1">{alert.source}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-ink">Acknowledged by</dt>
-                      <dd className="mt-1">{alert.acknowledgedBy ?? 'Unassigned'}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-ink">Investigation started</dt>
-                      <dd className="mt-1">
-                        {alert.investigationStartedAt
-                          ? timestampFormatter.format(new Date(alert.investigationStartedAt))
-                          : 'Not started'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-ink">Last updated by</dt>
-                      <dd className="mt-1">{alert.lastUpdatedBy ?? 'No activity yet'}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-ink">Shift date</dt>
-                      <dd className="mt-1">
-                        {new Date(alert.shiftDate).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </dd>
-                    </div>
-                  </dl>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Service</dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.service}</dd>
                 </div>
+                <div>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Source</dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.source}</dd>
+                </div>
+                <div>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                    Acknowledged by
+                  </dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.acknowledgedBy ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                    Investigation started
+                  </dt>
+                  <dd className="mt-1 text-ops-foreground">
+                    {alert.investigationStartedAt
+                      ? timestampFormatter.format(new Date(alert.investigationStartedAt))
+                      : 'Not started'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                    Last updated by
+                  </dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.lastUpdatedBy ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Shift date</dt>
+                  <dd className="mt-1 text-ops-foreground">
+                    {new Date(alert.shiftDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </dd>
+                </div>
+              </dl>
 
-                {alert.tags?.length ? (
-                  <div className="max-w-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                      Tags
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {alert.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-accentDark"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+              {alert.tags?.length ? (
+                <div className="mt-6 border-t border-ops-border pt-5">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Tags</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {alert.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-md border border-ops-border bg-ops-elevated px-2 py-1 text-2xs font-medium text-ops-muted"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
                   </div>
-                ) : null}
-              </div>
-            </section>
+                </div>
+              ) : null}
+            </SectionCard>
 
             <Timeline notes={notes} />
           </div>
 
           <div className="space-y-4">
-            <section className="rounded-[28px] border border-line/80 bg-panel px-5 py-5 shadow-panel">
-              <div>
-                <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-                  Quick Actions
-                </p>
-                <h2 className="mt-2 font-heading text-2xl font-semibold text-ink">
-                  Drive the workflow
-                </h2>
-              </div>
-
-              <label className="mt-5 flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <SectionCard eyebrow="Actions" title="Workflow" description="Operator-gated state transitions.">
+              <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
                 Acting as
                 <input
                   value={operatorName}
                   onChange={(event) => setOperatorName(event.target.value)}
-                  className="rounded-2xl border border-line bg-white px-4 py-3 outline-none transition focus:border-accent"
-                  placeholder="Shift operator name"
+                  className={inputClass}
+                  placeholder="Operator name"
                 />
               </label>
 
-              <div className="mt-5 grid gap-3">
+              <div className="mt-4 grid gap-2">
                 <button
                   type="button"
                   onClick={() => void handleStatusAction('acknowledge')}
                   disabled={isSavingAction || alert.status !== 'New'}
-                  className="rounded-2xl border border-line bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:border-accent hover:text-accentDark disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg border border-ops-border bg-ops-canvas px-4 py-2.5 text-sm font-semibold text-ops-foreground transition hover:border-ops-muted/50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {isSavingAction && alert.status === 'New'
-                    ? 'Acknowledging...'
-                    : 'Acknowledge Alert'}
+                  {isSavingAction && alert.status === 'New' ? 'Acknowledging…' : 'Acknowledge'}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleStatusAction('Investigating')}
                   disabled={isSavingAction || !['Acknowledged', 'Investigating'].includes(alert.status)}
-                  className="rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg border border-state-investigating/40 bg-state-investigating/15 px-4 py-2.5 text-sm font-semibold text-state-investigating transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {isSavingAction && alert.status !== 'Closed'
-                    ? 'Saving...'
-                    : 'Mark as Investigating'}
+                  Mark investigating
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleStatusAction('Closed')}
                   disabled={isSavingAction || alert.status !== 'Investigating'}
-                  className="rounded-2xl bg-success px-4 py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg border border-sev-low/35 bg-sev-low/15 px-4 py-2.5 text-sm font-semibold text-sev-low transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {isSavingAction && alert.status === 'Investigating'
-                    ? 'Closing...'
-                    : 'Mark as Closed'}
+                  Mark closed
                 </button>
               </div>
-            </section>
+            </SectionCard>
 
-            <section className="rounded-[28px] border border-red-200/70 bg-white px-5 py-5 shadow-panel">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-heading text-xs uppercase tracking-[0.3em] text-red-700/70">
-                    Incident Decision
-                  </p>
-                  <h2 className="mt-2 font-heading text-2xl font-semibold text-red-950">
-                    Incident linkage
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-600">
-                    Promote this alert into a managed incident only after investigation confirms a
-                    critical, real issue.
-                  </p>
-                </div>
-              </div>
-
+            <SectionCard
+              className="border-sev-critical/30 shadow-[0_0_0_1px_rgba(239,68,68,0.12)]"
+              eyebrow="Incident"
+              title="Promotion"
+              description="Only after validated customer impact. Creates a linked incident record."
+            >
               {alert.relatedIncidentId ? (
-                <div className="mt-5 rounded-[24px] border border-red-100 bg-red-50 px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-red-700/70">
-                    Linked Incident
-                  </p>
-                  <p className="mt-2 font-heading text-xl text-red-950">
+                <div className="rounded-lg border border-ops-border bg-ops-canvas/50 p-4">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Linked</p>
+                  <p className="mt-1 font-mono text-lg font-semibold text-ops-foreground">
                     #{alert.relatedIncidentId.slice(-8)}
                   </p>
                   <button
                     type="button"
                     onClick={() => onNavigateToIncident(alert.relatedIncidentId!)}
-                    className="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                    className="mt-3 w-full rounded-lg bg-sev-critical px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
                   >
-                    Open Linked Incident
+                    Open incident
                   </button>
                 </div>
               ) : (
@@ -386,12 +370,12 @@ export function AlertDetailsPage({
                   type="button"
                   onClick={() => setIsDeclareModalOpen(true)}
                   disabled={alert.status === 'Closed'}
-                  className="mt-5 w-full rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-lg bg-sev-critical px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {alert.status === 'Closed' ? 'Cannot Declare from Closed Alert' : 'Declare Incident'}
+                  {alert.status === 'Closed' ? 'Closed — cannot declare' : 'Declare incident'}
                 </button>
               )}
-            </section>
+            </SectionCard>
 
             <AddNoteForm
               createdBy={operatorName}
@@ -401,12 +385,12 @@ export function AlertDetailsPage({
             />
 
             {error ? (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+              <div className="rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-4 py-3 text-sm text-sev-critical">
                 {error}
               </div>
             ) : null}
           </div>
-        </section>
+        </div>
       </div>
 
       <DeclareIncidentModal

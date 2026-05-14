@@ -16,6 +16,9 @@ const currentTimestamp = () => {
 
 const currentShiftDate = () => new Date().toISOString().slice(0, 10);
 
+const fieldClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition placeholder:text-ops-muted/40 focus:border-state-open/45 focus:ring-1 focus:ring-state-open/25';
+
 export function NewAlertModal({ open, onClose, onSubmit }: NewAlertModalProps) {
   const [formValues, setFormValues] = useState({
     title: '',
@@ -79,22 +82,20 @@ export function NewAlertModal({ open, onClose, onSubmit }: NewAlertModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/45 px-4 py-8">
-      <div className="w-full max-w-2xl rounded-[32px] border border-line bg-panel p-6 shadow-panel">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8 backdrop-blur-sm">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-ops-border bg-ops-panel p-6 shadow-card">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-              Alert Intake
-            </p>
-            <h3 className="mt-2 font-heading text-2xl font-semibold text-ink">Log new alert</h3>
-            <p className="mt-2 text-sm text-slate-600">
-              Capture the raw signal with enough operational context for the on-shift team.
+            <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Intake</p>
+            <h3 className="mt-1 text-xl font-semibold text-ops-foreground">Log new alert</h3>
+            <p className="mt-2 text-sm text-ops-muted">
+              Capture the raw signal with enough context for the active shift.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-line px-3 py-2 text-sm font-semibold text-slate-600"
+            className="rounded-lg border border-ops-border px-3 py-1.5 text-sm font-medium text-ops-muted transition hover:text-ops-foreground"
           >
             Close
           </button>
@@ -102,57 +103,57 @@ export function NewAlertModal({ open, onClose, onSubmit }: NewAlertModalProps) {
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted md:col-span-2">
               Title
               <input
                 required
                 value={formValues.title}
                 onChange={(event) => handleChange('title', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                placeholder="Payment API latency spike detected"
+                className={fieldClass}
+                placeholder="Payment API latency spike"
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600 md:col-span-2">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted md:col-span-2">
               Description
               <textarea
                 required
                 rows={4}
                 value={formValues.description}
                 onChange={(event) => handleChange('description', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                placeholder="Describe the alert signal, threshold breach, and current impact."
+                className={fieldClass}
+                placeholder="Threshold breach, scope, and current impact."
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Source
               <input
                 required
                 value={formValues.source}
                 onChange={(event) => handleChange('source', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
                 placeholder="Datadog"
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Service
               <input
                 required
                 value={formValues.service}
                 onChange={(event) => handleChange('service', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
                 placeholder="Payments API"
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Severity
               <select
                 value={formValues.severity}
                 onChange={(event) => handleChange('severity', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
               >
                 {ALERT_SEVERITIES.map((severity) => (
                   <option key={severity} value={severity}>
@@ -162,59 +163,59 @@ export function NewAlertModal({ open, onClose, onSubmit }: NewAlertModalProps) {
               </select>
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Triggered at
               <input
                 required
                 type="datetime-local"
                 value={formValues.triggeredAt}
                 onChange={(event) => handleChange('triggeredAt', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Shift date
               <input
                 required
                 type="date"
                 value={formValues.shiftDate}
                 onChange={(event) => handleChange('shiftDate', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted md:col-span-2">
               Tags
               <input
                 value={formValues.tags}
                 onChange={(event) => handleChange('tags', event.target.value)}
-                className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                className={fieldClass}
                 placeholder="payments, latency, customer-impact"
               />
             </label>
           </div>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+            <div className="rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-3 py-2 text-sm text-sev-critical">
               {error}
             </div>
           ) : null}
 
-          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-2xl border border-line px-5 py-3 text-sm font-semibold text-slate-700"
+              className="rounded-lg border border-ops-border px-4 py-2.5 text-sm font-semibold text-ops-muted transition hover:text-ops-foreground"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-lg bg-state-open px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
             >
-              {isSubmitting ? 'Logging alert...' : 'Log Alert'}
+              {isSubmitting ? 'Logging…' : 'Log alert'}
             </button>
           </div>
         </form>

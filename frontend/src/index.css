@@ -1,45 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color: #0f172a;
-  background:
-    radial-gradient(circle at top left, rgba(196, 96, 47, 0.12), transparent 30%),
-    linear-gradient(180deg, #f8f1ea 0%, #f1e5d7 100%);
-  font-family: 'Public Sans', sans-serif;
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, sans-serif;
+    background-color: #0b1220;
+    color: #f3f4f6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #2a3441 transparent;
+  }
 
-html,
-body,
-#root {
-  min-height: 100%;
-}
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-body {
-  margin: 0;
-  color: #0f172a;
-}
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(140, 56, 18, 0.25);
-  border-radius: 999px;
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }

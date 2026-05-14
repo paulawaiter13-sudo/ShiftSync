@@ -1,10 +1,10 @@
 import type { InvestigationNote, InvestigationNoteType } from '../types/alert';
 
-const typeStyles: Record<InvestigationNoteType, string> = {
-  Note: 'border-slate-200 bg-white text-slate-700',
-  Action: 'border-orange-200 bg-orange-50 text-accentDark',
-  Escalation: 'border-red-200 bg-red-50 text-danger',
-  Update: 'border-sky-200 bg-sky-50 text-sky-700'
+const typePill: Record<InvestigationNoteType, string> = {
+  Note: 'border-ops-border bg-ops-elevated text-ops-muted',
+  Action: 'border-state-investigating/35 bg-state-investigating/10 text-state-investigating',
+  Escalation: 'border-sev-critical/45 bg-sev-critical/15 text-sev-critical',
+  Update: 'border-state-open/35 bg-state-open/10 text-state-open'
 };
 
 const timestampFormatter = new Intl.DateTimeFormat('en-US', {
@@ -22,34 +22,37 @@ export function NoteItem({ note }: NoteItemProps) {
   const isEscalation = note.type === 'Escalation';
 
   return (
-    <div className="relative pl-8">
-      <span
-        className={`absolute left-0 top-2.5 h-3.5 w-3.5 rounded-full border-4 ${
-          isEscalation ? 'border-red-200 bg-danger' : 'border-orange-100 bg-accent'
-        }`}
-      />
+    <div className="relative flex gap-4 pl-1 md:gap-5">
+      <div className="relative z-10 flex shrink-0 flex-col items-center pt-1">
+        <span
+          className={`h-3 w-3 rounded-full border-2 shadow-sm ${
+            isEscalation
+              ? 'border-sev-critical/60 bg-sev-critical shadow-[0_0_12px_rgba(239,68,68,0.45)]'
+              : 'border-ops-border bg-ops-panel'
+          }`}
+        />
+      </div>
+
       <article
-        className={`rounded-[24px] border px-5 py-4 shadow-sm ${
-          isEscalation ? 'border-red-200 bg-red-50/80' : 'border-line bg-white/80'
+        className={`min-w-0 flex-1 rounded-lg border px-4 py-3 transition ${
+          isEscalation
+            ? 'border-sev-critical/40 bg-sev-critical/10 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.12)]'
+            : 'border-ops-border bg-ops-canvas/50 hover:border-ops-muted/30'
         }`}
       >
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
-              typeStyles[note.type]
-            }`}
+            className={`inline-flex rounded-md border px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide ${typePill[note.type]}`}
           >
             {note.type}
           </span>
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-            {note.createdBy}
-          </span>
-          <span className="text-xs text-slate-500">
+          <span className="text-2xs font-medium uppercase tracking-wide text-ops-muted">{note.createdBy}</span>
+          <span className="font-mono text-2xs text-ops-muted">
             {timestampFormatter.format(new Date(note.createdAt))}
           </span>
         </div>
 
-        <p className="mt-3 text-sm leading-7 text-slate-700">{note.message}</p>
+        <p className="mt-2 text-sm leading-relaxed text-ops-foreground/95">{note.message}</p>
       </article>
     </div>
   );

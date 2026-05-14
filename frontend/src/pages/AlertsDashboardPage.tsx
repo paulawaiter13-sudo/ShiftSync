@@ -13,6 +13,7 @@ import { KpiCard } from '../components/KpiCard';
 import { LoadingState } from '../components/LoadingState';
 import { NewAlertModal } from '../components/NewAlertModal';
 import { createAlert, fetchAlerts } from '../services/alerts';
+import { AlertsDashboardHero } from '../sections/alerts/AlertsDashboardHero';
 import type { Alert, AlertFilters, CreateAlertPayload } from '../types/alert';
 
 const initialFilters: AlertFilters = {
@@ -62,14 +63,18 @@ export function AlertsDashboardPage({ onSelectAlert }: AlertsDashboardPageProps)
     [alerts]
   );
 
+  const todayStr = new Date().toDateString();
+
   const kpis = useMemo(
     () => ({
-      total: alerts.length,
-      newCount: alerts.filter((alert) => alert.status === 'New').length,
-      critical: alerts.filter((alert) => alert.severity === 'Critical').length,
-      investigating: alerts.filter((alert) => alert.status === 'Investigating').length
+      active: alerts.filter((a) => a.status !== 'Closed').length,
+      critical: alerts.filter((a) => a.severity === 'Critical').length,
+      investigating: alerts.filter((a) => a.status === 'Investigating').length,
+      resolvedToday: alerts.filter(
+        (a) => a.status === 'Closed' && new Date(a.updatedAt).toDateString() === todayStr
+      ).length
     }),
-    [alerts]
+    [alerts, todayStr]
   );
 
   const handleFilterChange = (field: keyof AlertFilters, value: string) => {
@@ -95,57 +100,34 @@ export function AlertsDashboardPage({ onSelectAlert }: AlertsDashboardPageProps)
   return (
     <>
       <div className="space-y-4">
-        <section className="rounded-[28px] border border-line/80 bg-panel px-6 py-6 shadow-panel">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="font-heading text-xs uppercase tracking-[0.35em] text-accentDark/70">
-                Alerts Dashboard
-              </p>
-              <h1 className="mt-2 font-heading text-4xl font-semibold text-ink">
-                Live alert intake
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Review raw operational signals, isolate noise from action-worthy events, and keep
-                an auditable record for the shift without promoting every alert to an incident.
-              </p>
-            </div>
+        <AlertsDashboardHero onNewAlert={() => setIsModalOpen(true)} />
 
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:bg-accentDark"
-            >
-              Log New Alert
-            </button>
-          </div>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
           <KpiCard
-            label="Total Alerts"
-            value={kpis.total}
-            helper="Current result set after filters"
-            accentClass="bg-ink"
+            label="Active alerts"
+            value={kpis.active}
+            helper="Non-closed items in the current result set."
+            tone="neutral"
           />
           <KpiCard
-            label="New Alerts"
-            value={kpis.newCount}
-            helper="Unacknowledged incoming signals"
-            accentClass="bg-sky-500"
-          />
-          <KpiCard
-            label="Critical Alerts"
+            label="Critical"
             value={kpis.critical}
-            helper="Highest-severity conditions in view"
-            accentClass="bg-danger"
+            helper="Highest severity in view — prioritize triage."
+            tone="critical"
           />
           <KpiCard
-            label="Investigating Alerts"
+            label="Investigating"
             value={kpis.investigating}
-            helper="Alerts already under active triage"
-            accentClass="bg-accent"
+            helper="Under active operator analysis."
+            tone="warning"
           />
-        </section>
+          <KpiCard
+            label="Resolved today"
+            value={kpis.resolvedToday}
+            helper="Closed today (by last update timestamp)."
+            tone="positive"
+          />
+        </div>
 
         <FilterBar
           filters={filters}
@@ -155,7 +137,7 @@ export function AlertsDashboardPage({ onSelectAlert }: AlertsDashboardPageProps)
         />
 
         {error ? (
-          <div className="rounded-[28px] border border-red-200 bg-red-50 px-5 py-4 text-sm text-danger shadow-panel">
+          <div className="rounded-xl border border-sev-critical/35 bg-sev-critical/10 px-4 py-3 text-sm text-sev-critical">
             {error}
           </div>
         ) : null}
@@ -164,8 +146,8 @@ export function AlertsDashboardPage({ onSelectAlert }: AlertsDashboardPageProps)
           <LoadingState />
         ) : alerts.length === 0 ? (
           <EmptyState
-            title="No alerts match the current filters"
-            description="Try broadening the search or clearing one of the selected filters to bring the alert stream back into view."
+            title="No alerts in this view"
+            description="Adjust filters or clear search to widen the stream. New signals appear here as soon as they hit the API."
           />
         ) : (
           <AlertsTable alerts={alerts} onSelect={onSelectAlert} />

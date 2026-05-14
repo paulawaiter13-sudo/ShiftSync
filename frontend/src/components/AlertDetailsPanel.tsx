@@ -12,6 +12,9 @@ const timestampFormatter = new Intl.DateTimeFormat('en-US', {
   minute: '2-digit'
 });
 
+const fieldClass =
+  'w-full rounded-lg border border-ops-border bg-ops-canvas px-3 py-2.5 text-sm text-ops-foreground outline-none transition focus:border-state-open/45 focus:ring-1 focus:ring-state-open/25';
+
 interface AlertDetailsPanelProps {
   alertId: string | null;
   onClose: () => void;
@@ -92,53 +95,53 @@ export function AlertDetailsPanel({ alertId, onClose, onUpdated }: AlertDetailsP
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-30 flex w-full max-w-xl border-l border-line bg-panel shadow-panel">
-      <div className="flex w-full flex-col overflow-y-auto p-6">
+    <div className="fixed inset-y-0 right-0 z-40 flex w-full max-w-xl border-l border-ops-border bg-ops-panel shadow-card">
+      <div className="flex w-full flex-col overflow-y-auto p-6 scrollbar-thin">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-              Alert Detail
-            </p>
-            <h3 className="mt-2 font-heading text-2xl font-semibold text-ink">
-              {isLoading ? 'Loading alert...' : alert?.title}
+            <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Alert</p>
+            <h3 className="mt-1 text-lg font-semibold text-ops-foreground">
+              {isLoading ? 'Loading…' : alert?.title}
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-line px-3 py-2 text-sm font-semibold text-slate-600"
+            className="rounded-lg border border-ops-border px-3 py-1.5 text-sm font-medium text-ops-muted transition hover:text-ops-foreground"
           >
             Close
           </button>
         </div>
 
         {isLoading ? (
-          <div className="mt-6 h-40 animate-pulse rounded-3xl bg-slate-200" />
+          <div className="mt-6 h-40 animate-pulse rounded-xl bg-ops-elevated/60" />
         ) : alert ? (
-          <div className="mt-6 space-y-6">
-            <div className="rounded-[28px] border border-line bg-white/70 p-5">
-              <div className="flex flex-wrap items-center gap-3">
+          <div className="mt-6 space-y-5">
+            <div className="rounded-xl border border-ops-border bg-ops-canvas/40 p-4">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge type="severity" value={alert.severity} />
                 <Badge type="status" value={alert.status} />
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                <span className="rounded-md border border-ops-border bg-ops-elevated px-2 py-1 text-2xs font-medium text-ops-muted">
                   {alert.source}
                 </span>
               </div>
 
-              <p className="mt-4 text-sm leading-7 text-slate-700">{alert.description}</p>
+              <p className="mt-4 text-sm leading-relaxed text-ops-muted">{alert.description}</p>
 
-              <dl className="mt-5 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+              <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="font-semibold text-ink">Service</dt>
-                  <dd className="mt-1">{alert.service}</dd>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Service</dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.service}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-ink">Triggered at</dt>
-                  <dd className="mt-1">{timestampFormatter.format(new Date(alert.triggeredAt))}</dd>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Triggered</dt>
+                  <dd className="mt-1 text-ops-foreground">
+                    {timestampFormatter.format(new Date(alert.triggeredAt))}
+                  </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-ink">Shift date</dt>
-                  <dd className="mt-1">
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Shift date</dt>
+                  <dd className="mt-1 text-ops-foreground">
                     {new Date(alert.shiftDate).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -147,17 +150,19 @@ export function AlertDetailsPanel({ alertId, onClose, onUpdated }: AlertDetailsP
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-ink">Acknowledged by</dt>
-                  <dd className="mt-1">{alert.acknowledgedBy ?? 'Unassigned'}</dd>
+                  <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                    Acknowledged by
+                  </dt>
+                  <dd className="mt-1 text-ops-foreground">{alert.acknowledgedBy ?? '—'}</dd>
                 </div>
               </dl>
 
               {alert.tags?.length ? (
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {alert.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-accentDark"
+                      className="rounded-md border border-ops-border bg-ops-elevated px-2 py-1 text-2xs text-ops-muted"
                     >
                       #{tag}
                     </span>
@@ -166,15 +171,15 @@ export function AlertDetailsPanel({ alertId, onClose, onUpdated }: AlertDetailsP
               ) : null}
             </div>
 
-            <div className="rounded-[28px] border border-line bg-white/70 p-5">
-              <h4 className="font-heading text-lg font-semibold text-ink">Update status</h4>
+            <div className="rounded-xl border border-ops-border bg-ops-canvas/40 p-4">
+              <h4 className="text-sm font-semibold text-ops-foreground">Update status</h4>
               <div className="mt-4 space-y-4">
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+                <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
                   Status
                   <select
                     value={selectedStatus}
                     onChange={(event) => setSelectedStatus(event.target.value as AlertStatus)}
-                    className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                    className={fieldClass}
                   >
                     {ALERT_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -184,19 +189,19 @@ export function AlertDetailsPanel({ alertId, onClose, onUpdated }: AlertDetailsP
                   </select>
                 </label>
 
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-600">
+                <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
                   Acknowledged by
                   <input
                     value={acknowledgedBy}
                     onChange={(event) => setAcknowledgedBy(event.target.value)}
-                    className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                    placeholder="Shift Operator"
+                    className={fieldClass}
+                    placeholder="Shift operator"
                   />
                 </label>
               </div>
 
               {error ? (
-                <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-danger">
+                <div className="mt-4 rounded-lg border border-sev-critical/35 bg-sev-critical/10 px-3 py-2 text-sm text-sev-critical">
                   {error}
                 </div>
               ) : null}
@@ -205,14 +210,14 @@ export function AlertDetailsPanel({ alertId, onClose, onUpdated }: AlertDetailsP
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={isSaving}
-                className="mt-5 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-4 w-full rounded-lg bg-state-open px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
               >
-                {isSaving ? 'Saving changes...' : 'Save Status'}
+                {isSaving ? 'Saving…' : 'Save status'}
               </button>
             </div>
           </div>
         ) : (
-          <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-danger">
+          <div className="mt-6 rounded-xl border border-sev-critical/35 bg-sev-critical/10 px-4 py-3 text-sm text-sev-critical">
             {error ?? 'Alert not found'}
           </div>
         )}

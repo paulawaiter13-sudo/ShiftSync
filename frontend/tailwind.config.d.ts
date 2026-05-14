@@ -3,22 +3,48 @@ declare const _default: {
     theme: {
         extend: {
             colors: {
-                ink: string;
-                canvas: string;
-                panel: string;
-                line: string;
-                accent: string;
-                accentDark: string;
-                success: string;
-                warning: string;
-                danger: string;
+                ops: {
+                    canvas: string;
+                    panel: string;
+                    elevated: string;
+                    border: string;
+                    foreground: string;
+                    muted: string;
+                };
+                sev: {
+                    critical: string;
+                    high: string;
+                    medium: string;
+                    low: string;
+                };
+                state: {
+                    open: string;
+                    investigating: string;
+                    monitoring: string;
+                    resolved: string;
+                    closed: string;
+                    new: string;
+                    acknowledged: string;
+                };
+                incident: {
+                    glow: string;
+                };
             };
             boxShadow: {
-                panel: string;
+                card: string;
+                'card-hover': string;
+                shell: string;
             };
             fontFamily: {
-                heading: [string, string];
-                body: [string, string];
+                sans: [string, string, string];
+            };
+            fontSize: {
+                '2xs': [string, {
+                    lineHeight: string;
+                }];
+            };
+            spacing: {
+                18: string;
             };
         };
     };

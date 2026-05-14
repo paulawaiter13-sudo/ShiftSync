@@ -1,5 +1,5 @@
 import type { InvestigationNote } from '../types/alert';
-import { EmptyState } from './EmptyState';
+import { SectionCard } from './SectionCard';
 import { NoteItem } from './NoteItem';
 
 interface TimelineProps {
@@ -9,32 +9,45 @@ interface TimelineProps {
 export function Timeline({ notes }: TimelineProps) {
   if (notes.length === 0) {
     return (
-      <EmptyState
-        title="No investigation activity yet"
-        description="Once an operator starts documenting checks, actions, or escalations, the alert timeline will appear here in chronological order."
-      />
+      <SectionCard
+        eyebrow="Investigation"
+        title="Timeline"
+        description="Chronological operations log for this alert. Entries appear as operators document checks, actions, and escalations."
+        padding="md"
+      >
+        <div className="rounded-lg border border-dashed border-ops-border bg-ops-canvas/40 px-4 py-10 text-center">
+          <p className="text-sm font-medium text-ops-foreground">No investigation activity yet</p>
+          <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-ops-muted">
+            Add notes from the panel on the right. Escalations are highlighted automatically in the stream.
+          </p>
+        </div>
+      </SectionCard>
     );
   }
 
   return (
-    <div className="rounded-[28px] border border-line/80 bg-panel px-6 py-6 shadow-panel">
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="font-heading text-xs uppercase tracking-[0.3em] text-accentDark/70">
-            Investigation Timeline
-          </p>
-          <h2 className="mt-2 font-heading text-2xl font-semibold text-ink">Ops activity log</h2>
+    <SectionCard
+      eyebrow="Investigation"
+      title="Timeline"
+      description="Operations log — newest context at the bottom of the thread."
+      padding="none"
+      action={
+        <span className="rounded-md border border-ops-border bg-ops-elevated px-2.5 py-1 font-mono text-2xs font-semibold text-ops-muted">
+          {notes.length} {notes.length === 1 ? 'entry' : 'entries'}
+        </span>
+      }
+    >
+      <div className="relative space-y-0 px-5 py-5 md:px-6">
+        <div
+          className="pointer-events-none absolute bottom-6 left-[1.35rem] top-8 w-px bg-ops-border md:left-[1.45rem]"
+          aria-hidden
+        />
+        <div className="space-y-4">
+          {notes.map((note) => (
+            <NoteItem key={note.id} note={note} />
+          ))}
         </div>
-        <p className="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
-          {notes.length} entries
-        </p>
       </div>
-
-      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-[0.4rem] before:top-2 before:w-px before:bg-line">
-        {notes.map((note) => (
-          <NoteItem key={note.id} note={note} />
-        ))}
-      </div>
-    </div>
+    </SectionCard>
   );
 }
