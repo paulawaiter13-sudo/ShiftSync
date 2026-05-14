@@ -12,13 +12,13 @@ export function createApp() {
 
   app.use(
     cors({
-        origin: [
-          'http://localhost:5173',
-          process.env.FRONTEND_ORIGIN || ''
-        ],
-        credentials: true
-      })
-    );
+      origin: [
+        'http://localhost:5173',
+        'https://shift-sync-frontend-sigma.vercel.app'
+      ],
+      credentials: true
+    })
+  );
   app.use(helmet());
   app.use(express.json());
   app.use(morgan('dev'));
