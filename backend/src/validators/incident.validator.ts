@@ -8,7 +8,7 @@ const incidentCategorySchema = z.enum([
   'Application',
   'Security',
   'Database',
-  'Third-Party',
+  'ThirdParty',
   'Other'
 ]);
 const incidentEnvironmentSchema = z.enum(['Production', 'Staging', 'Internal', 'Other']);
@@ -34,7 +34,7 @@ const baseIncidentSchema = z.object({
 });
 
 export const createIncidentSchema = baseIncidentSchema.extend({
-  status: incidentStatusSchema.optional().default('Open')
+  status: incidentStatusSchema
 });
 
 export const createIncidentFromAlertParamsSchema = z.object({

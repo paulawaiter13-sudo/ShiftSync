@@ -9,10 +9,10 @@ import {
 
 const incidentRouter = Router();
 
-incidentRouter.get('/', handleListIncidents);
-incidentRouter.get('/:id', handleGetIncidentById);
-incidentRouter.post('/', handleCreateIncident);
 incidentRouter.post('/from-alert/:alertId', handleCreateIncidentFromAlert);
+incidentRouter.get('/', handleListIncidents);
+incidentRouter.post('/', handleCreateIncident);
+incidentRouter.get('/:id', handleGetIncidentById);
 incidentRouter.patch('/:id/status', handleUpdateIncidentStatus);
 
 export { incidentRouter };

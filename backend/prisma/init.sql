@@ -25,7 +25,7 @@ CREATE TABLE "Incident" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "title" TEXT NOT NULL,
   "description" TEXT NOT NULL,
-  "category" TEXT NOT NULL CHECK ("category" IN ('Infrastructure', 'Network', 'Application', 'Security', 'Database', 'Third-Party', 'Other')),
+  "category" TEXT NOT NULL CHECK ("category" IN ('Infrastructure', 'Network', 'Application', 'Security', 'Database', 'ThirdParty', 'Other')),
   "severity" TEXT NOT NULL CHECK ("severity" IN ('Low', 'Medium', 'High', 'Critical')),
   "status" TEXT NOT NULL DEFAULT 'Open' CHECK ("status" IN ('Open', 'Investigating', 'Monitoring', 'Resolved', 'Closed')),
   "affectedService" TEXT NOT NULL,

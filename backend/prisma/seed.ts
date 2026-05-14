@@ -233,7 +233,7 @@ async function main() {
       title: 'OTP delivery carrier disruption',
       description:
         'A third-party SMS carrier degraded OTP delivery for UK traffic until partner routing was restored and delivery rates normalized.',
-      category: 'Third-Party',
+      category: 'ThirdParty',
       severity: 'Medium',
       status: 'Resolved',
       affectedService: 'Customer Notifications',

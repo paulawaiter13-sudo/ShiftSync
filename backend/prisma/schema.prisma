@@ -7,6 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum IncidentStatus {
+  Open
+  Investigating
+  Monitoring
+  Resolved
+  Closed
+}
+
+enum IncidentCategory {
+  Infrastructure
+  Network
+  Application
+  Security
+  Database
+  ThirdParty
+  Other
+}
+
+enum IncidentEnvironment {
+  Production
+  Staging
+  Internal
+  Other
+}
+
 model Alert {
   id                     String              @id @default(cuid())
   title                  String
@@ -22,11 +47,12 @@ model Alert {
   investigationStartedAt DateTime?
   lastUpdatedBy          String?
   relatedIncidentId      String?             @unique
+  relatedIncident        Incident?           @relation("AlertRelatedIncident", fields: [relatedIncidentId], references: [id], onDelete: SetNull)
+  declaredIncident       Incident?           @relation("IncidentSourceAlert")
   shiftDate              DateTime
   tags                   String?
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
-  sourceIncident         Incident?
   investigationNotes     InvestigationNote[]
 
   @@index([status])
@@ -37,25 +63,22 @@ model Alert {
 }
 
 model Incident {
-  id              String   @id @default(cuid())
+  id              String               @id @default(cuid())
   title           String
   description     String
-  /// Allowed values: Infrastructure, Network, Application, Security, Database, Third-Party, Other
-  category        String
-  /// Allowed values: Low, Medium, High, Critical
+  category        IncidentCategory
   severity        String
-  /// Allowed values: Open, Investigating, Monitoring, Resolved, Closed
-  status          String   @default("Open")
+  status          IncidentStatus       @default(Open)
   affectedService String
-  /// Allowed values: Production, Staging, Internal, Other
-  environment     String
+  environment     IncidentEnvironment
   reportedBy      String
   assignedTo      String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
   resolvedAt      DateTime?
-  sourceAlertId   String?  @unique
-  sourceAlert     Alert?   @relation(fields: [sourceAlertId], references: [id], onDelete: SetNull)
+  sourceAlertId   String?              @unique
+  sourceAlert     Alert?               @relation("IncidentSourceAlert", fields: [sourceAlertId], references: [id], onDelete: SetNull)
+  linkedFromAlert Alert?               @relation("AlertRelatedIncident")
 
   @@index([status])
   @@index([severity])
