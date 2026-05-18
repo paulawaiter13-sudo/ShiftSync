@@ -17,4 +17,4 @@ handoverRoutes.get('/:id', handleGetHandoverById);
 handoverRoutes.patch('/:id/status', handleUpdateHandoverStatus);
 handoverRoutes.patch('/:id', handleUpdateHandover);
 
-export { handoverRoutes };
+export default handoverRoutes;
