@@ -3,6 +3,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { alertRouter } from './routes/alert.routes';
+import { handoverRoutes } from './routes/handover.routes';
 import { incidentRouter } from './routes/incident.routes';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
@@ -32,6 +33,7 @@ export function createApp() {
 
   app.use('/api/alerts', alertRouter);
   app.use('/api/incidents', incidentRouter);
+  app.use('/api/handovers', handoverRoutes);
   app.use(notFoundHandler);
   app.use(errorHandler);
 

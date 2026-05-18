@@ -54,6 +54,7 @@ model Alert {
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
   investigationNotes     InvestigationNote[]
+  handoverLinks          HandoverAlert[]
 
   @@index([status])
   @@index([severity])
@@ -79,6 +80,7 @@ model Incident {
   sourceAlertId   String?              @unique
   sourceAlert     Alert?               @relation("IncidentSourceAlert", fields: [sourceAlertId], references: [id], onDelete: SetNull)
   linkedFromAlert Alert?               @relation("AlertRelatedIncident")
+  handoverLinks   HandoverIncident[]
 
   @@index([status])
   @@index([severity])
@@ -98,4 +100,86 @@ model InvestigationNote {
   alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
 
   @@index([alertId, createdAt])
+}
+
+enum ShiftType {
+  Morning
+  Evening
+  Night
+}
+
+enum HandoverStatus {
+  Draft
+  Ready
+  Completed
+}
+
+enum FollowUpPriority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum FollowUpStatus {
+  Open
+  InProgress
+  Done
+}
+
+model ShiftHandover {
+  id             String           @id @default(cuid())
+  shiftDate      DateTime         @db.Date
+  shiftType      ShiftType
+  createdBy      String
+  status         HandoverStatus   @default(Draft)
+  summary        String           @default("")
+  nextShiftNotes String           @default("")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  completedAt    DateTime?
+
+  selectedAlerts    HandoverAlert[]
+  selectedIncidents HandoverIncident[]
+  followUpItems     HandoverFollowUpItem[]
+
+  @@index([status])
+  @@index([shiftType])
+  @@index([shiftDate])
+}
+
+model HandoverAlert {
+  handoverId String
+  alertId    String
+  handover   ShiftHandover @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+  alert      Alert         @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@id([handoverId, alertId])
+  @@index([alertId])
+}
+
+model HandoverIncident {
+  handoverId String
+  incidentId String
+  handover   ShiftHandover @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+  incident   Incident      @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@id([handoverId, incidentId])
+  @@index([incidentId])
+}
+
+model HandoverFollowUpItem {
+  id          String            @id @default(cuid())
+  handoverId  String
+  title       String
+  description String
+  owner       String?
+  priority    FollowUpPriority
+  status      FollowUpStatus    @default(Open)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  handover    ShiftHandover     @relation(fields: [handoverId], references: [id], onDelete: Cascade)
+
+  @@index([handoverId])
+  @@index([status])
 }

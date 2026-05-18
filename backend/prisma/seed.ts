@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type IncidentCategory, type IncidentEnvironment, type IncidentStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,6 +14,7 @@ const shiftDateFor = (date: Date) =>
 const minutesAfter = (date: Date, minutes: number) => new Date(date.getTime() + minutes * 60_000);
 
 async function main() {
+  await prisma.shiftHandover.deleteMany();
   await prisma.investigationNote.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.alert.deleteMany();
@@ -201,16 +202,16 @@ async function main() {
     }
   ];
 
-  const createdAlerts = await Promise.all(
-    alerts.map((alert) =>
-      prisma.alert.create({
-        data: {
-          ...alert,
-          shiftDate: shiftDateFor(alert.triggeredAt)
-        }
-      })
-    )
-  );
+  const createdAlerts = [];
+  for (const alert of alerts) {
+    const created = await prisma.alert.create({
+      data: {
+        ...alert,
+        shiftDate: shiftDateFor(alert.triggeredAt)
+      }
+    });
+    createdAlerts.push(created);
+  }
 
   const alertByTitle = new Map(createdAlerts.map((alert) => [alert.title, alert]));
 
@@ -268,11 +269,11 @@ async function main() {
       data: {
         title: incident.title,
         description: incident.description,
-        category: incident.category,
+        category: incident.category as IncidentCategory,
         severity: incident.severity,
-        status: incident.status,
+        status: incident.status as IncidentStatus,
         affectedService: incident.affectedService,
-        environment: incident.environment,
+        environment: incident.environment as IncidentEnvironment,
         reportedBy: incident.reportedBy,
         assignedTo: incident.assignedTo,
         resolvedAt: incident.resolvedAt,
@@ -364,15 +365,65 @@ async function main() {
     }
   ];
 
-  await prisma.investigationNote.createMany({
-    data: notes.map((note) => ({
-      alertId: alertByTitle.get(note.alertTitle)!.id,
-      message: note.message,
-      type: note.type,
-      createdBy: note.createdBy,
-      createdAt: note.createdAt
-    }))
+  for (const note of notes) {
+    await prisma.investigationNote.create({
+      data: {
+        alertId: alertByTitle.get(note.alertTitle)!.id,
+        message: note.message,
+        type: note.type,
+        createdBy: note.createdBy,
+        createdAt: note.createdAt
+      }
+    });
+  }
+
+  const samplePaymentAlert = alertByTitle.get('Payment API latency spike detected');
+  const sampleFraudAlert = alertByTitle.get('Fraud service timeout');
+  const sampleIncident = await prisma.incident.findFirst({
+    where: { title: 'Corporate VPN session instability' }
   });
+
+  if (samplePaymentAlert && sampleFraudAlert) {
+    await prisma.shiftHandover.create({
+      data: {
+        shiftDate: shiftDateFor(new Date()),
+        shiftType: 'Evening',
+        createdBy: 'Nina Alvarez',
+        status: 'Ready',
+        summary:
+          'Payments latency and fraud timeouts remain the highest-risk threads. VPN incident is open for Tier2.',
+        nextShiftNotes:
+          'Continue monitoring payment p95 after autoscale. Fraud worker pool was restarted — validate error budget.',
+        completedAt: null,
+        selectedAlerts: {
+          create: [{ alertId: samplePaymentAlert.id }, { alertId: sampleFraudAlert.id }]
+        },
+        selectedIncidents: sampleIncident
+          ? {
+              create: [{ incidentId: sampleIncident.id }]
+            }
+          : undefined,
+        followUpItems: {
+          create: [
+            {
+              title: 'Confirm payment cluster scale event',
+              description: 'Validate HPA decisions and pod placement after the last scale-out.',
+              owner: 'Payments on-call',
+              priority: 'High',
+              status: 'Open'
+            },
+            {
+              title: 'Post-mortem draft for fraud timeouts',
+              description: 'Capture timeline, blast radius, and customer impact for leadership review.',
+              owner: null,
+              priority: 'Medium',
+              status: 'InProgress'
+            }
+          ]
+        }
+      }
+    });
+  }
 }
 
 main()
