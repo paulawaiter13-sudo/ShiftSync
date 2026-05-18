@@ -16,12 +16,12 @@ interface SidebarProps {
 const navPrimary: { id: ShellNavId; label: string; disabled?: boolean }[] = [
   { id: 'alerts', label: 'Alerts' },
   { id: 'investigations', label: 'Investigations' },
-  { id: 'incidents', label: 'Incidents' }
+  { id: 'incidents', label: 'Incidents' },
+  { id: 'handover', label: 'Handover' }
 ];
 
 const navSecondary: { id: ShellNavId; label: string; disabled?: boolean }[] = [
-  { id: 'handover', label: 'Handover', disabled: true },
-  { id: 'reports', label: 'Reports', disabled: true },
+  { id: 'reports', label: 'Operational Insights', disabled: true },
   { id: 'settings', label: 'Settings', disabled: true }
 ];
 

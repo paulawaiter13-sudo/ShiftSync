@@ -2,12 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { Alert } from '../types/alert';
 import { ALERT_SEVERITIES } from '../types/alert';
 import type { CreateIncidentFromAlertPayload } from '../types/incident';
-import { INCIDENT_CATEGORIES, INCIDENT_ENVIRONMENTS } from '../types/incident';
+import { formatIncidentCategory, INCIDENT_CATEGORIES, INCIDENT_ENVIRONMENTS } from '../types/incident';
 
 interface DeclareIncidentModalProps {
   open: boolean;
   alert: Alert | null;
-  reportedBy: string;
+  initialReportedBy: string;
   onClose: () => void;
   onSubmit: (payload: CreateIncidentFromAlertPayload) => Promise<void>;
 }
@@ -18,18 +18,19 @@ const fieldClass =
 export function DeclareIncidentModal({
   open,
   alert,
-  reportedBy,
+  initialReportedBy,
   onClose,
   onSubmit
 }: DeclareIncidentModalProps) {
   const [formValues, setFormValues] = useState({
     title: '',
     description: '',
-    category: 'Application',
-    severity: 'High',
+    category: 'Application' as CreateIncidentFromAlertPayload['category'],
+    severity: 'High' as CreateIncidentFromAlertPayload['severity'],
     affectedService: '',
-    environment: 'Production',
-    assignedTo: ''
+    environment: 'Production' as CreateIncidentFromAlertPayload['environment'],
+    assignedTo: '',
+    reportedBy: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,13 +44,14 @@ export function DeclareIncidentModal({
       title: alert.title,
       description: alert.description,
       category: 'Application',
-      severity: alert.severity,
+      severity: alert.severity as CreateIncidentFromAlertPayload['severity'],
       affectedService: alert.service,
       environment: 'Production',
-      assignedTo: ''
+      assignedTo: '',
+      reportedBy: initialReportedBy.trim()
     });
     setError(null);
-  }, [alert, open]);
+  }, [alert, open, initialReportedBy]);
 
   if (!open || !alert) {
     return null;
@@ -66,8 +68,8 @@ export function DeclareIncidentModal({
     event.preventDefault();
     setError(null);
 
-    if (!reportedBy.trim()) {
-      setError('Set the acting operator name before declaring an incident.');
+    if (!formValues.reportedBy.trim()) {
+      setError('Reported by is required — enter the operator declaring this incident.');
       return;
     }
 
@@ -77,11 +79,11 @@ export function DeclareIncidentModal({
       await onSubmit({
         title: formValues.title.trim(),
         description: formValues.description.trim(),
-        category: formValues.category as CreateIncidentFromAlertPayload['category'],
-        severity: formValues.severity as CreateIncidentFromAlertPayload['severity'],
+        category: formValues.category,
+        severity: formValues.severity,
         affectedService: formValues.affectedService.trim(),
-        environment: formValues.environment as CreateIncidentFromAlertPayload['environment'],
-        reportedBy: reportedBy.trim(),
+        environment: formValues.environment,
+        reportedBy: formValues.reportedBy.trim(),
         assignedTo: formValues.assignedTo.trim() || null
       });
       onClose();
@@ -146,7 +148,7 @@ export function DeclareIncidentModal({
               >
                 {INCIDENT_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
-                    {category}
+                    {formatIncidentCategory(category)}
                   </option>
                 ))}
               </select>
@@ -205,9 +207,15 @@ export function DeclareIncidentModal({
             <label className="flex flex-col gap-1.5 text-xs font-medium text-ops-muted">
               Reported by
               <input
-                value={reportedBy}
-                readOnly
-                className="cursor-not-allowed rounded-lg border border-ops-border bg-ops-elevated/50 px-3 py-2.5 text-sm text-ops-muted"
+                required
+                minLength={2}
+                maxLength={80}
+                value={formValues.reportedBy}
+                onChange={(event) =>
+                  setFormValues((current) => ({ ...current, reportedBy: event.target.value }))
+                }
+                className={fieldClass}
+                placeholder="Operator name"
               />
             </label>
 

@@ -7,7 +7,7 @@ export type { ShellNavId } from '../components/Sidebar';
 
 interface AppShellProps extends PropsWithChildren {
   activeNav: ShellNavId;
-  headerContext: 'alerts' | 'incidents';
+  headerContext: 'alerts' | 'investigations' | 'incidents' | 'handover';
   onNavSelect: (id: ShellNavId) => void;
 }
 

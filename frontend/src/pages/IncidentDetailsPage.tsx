@@ -3,7 +3,7 @@ import { SectionCard } from '../components/SectionCard';
 import { IncidentBadge } from '../components/IncidentBadge';
 import { fetchIncidentById, updateIncidentStatus } from '../services/incidents';
 import type { Incident, IncidentStatus } from '../types/incident';
-import { INCIDENT_STATUSES } from '../types/incident';
+import { formatIncidentCategory, INCIDENT_STATUSES } from '../types/incident';
 
 const timestampFormatter = new Intl.DateTimeFormat('en-US', {
   weekday: 'short',
@@ -144,8 +144,18 @@ export function IncidentDetailsPage({
                 <dd className="mt-1 text-ops-foreground">{incident.affectedService}</dd>
               </div>
               <div>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Environment</dt>
+                <dd className="mt-1 text-ops-foreground">{incident.environment}</dd>
+              </div>
+              <div>
                 <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Category</dt>
-                <dd className="mt-1 text-ops-foreground">{incident.category}</dd>
+                <dd className="mt-1 text-ops-foreground">{formatIncidentCategory(incident.category)}</dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Created at</dt>
+                <dd className="mt-1 text-ops-foreground">
+                  {timestampFormatter.format(new Date(incident.createdAt))}
+                </dd>
               </div>
               <div>
                 <dt className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Reported by</dt>

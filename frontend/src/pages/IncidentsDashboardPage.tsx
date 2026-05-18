@@ -1,11 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EmptyState } from '../components/EmptyState';
+import { IncidentFiltersBar } from '../components/IncidentFiltersBar';
 import { IncidentsTable } from '../components/IncidentsTable';
 import { KpiCard } from '../components/KpiCard';
 import { LoadingState } from '../components/LoadingState';
 import { fetchIncidents } from '../services/incidents';
 import { IncidentsCommandHeader } from '../sections/incidents/IncidentsCommandHeader';
-import type { Incident } from '../types/incident';
+import type { Incident, IncidentFilters } from '../types/incident';
+
+const defaultFilters: IncidentFilters = {
+  status: '',
+  severity: '',
+  category: ''
+};
 
 interface IncidentsDashboardPageProps {
   onSelectIncident: (incidentId: string) => void;
@@ -13,39 +20,37 @@ interface IncidentsDashboardPageProps {
 
 export function IncidentsDashboardPage({ onSelectIncident }: IncidentsDashboardPageProps) {
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [filters, setFilters] = useState<IncidentFilters>(defaultFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadIncidents = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    try {
+      const response = await fetchIncidents(filters);
+      setIncidents(response.data);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load incidents');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters]);
 
-    fetchIncidents({
-      status: '',
-      severity: '',
-      category: ''
-    })
-      .then((response) => {
-        if (isMounted) {
-          setIncidents(response.data);
-        }
-      })
-      .catch((loadError) => {
-        if (isMounted) {
-          setError(loadError instanceof Error ? loadError.message : 'Unable to load incidents');
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
+  useEffect(() => {
+    void loadIncidents();
+  }, [loadIncidents]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const handleFilterChange = (field: keyof IncidentFilters, value: string) => {
+    setFilters((current) => ({
+      ...current,
+      [field]: value
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setFilters(defaultFilters);
+  };
 
   const kpis = useMemo(() => {
     const today = new Date().toDateString();
@@ -67,24 +72,26 @@ export function IncidentsDashboardPage({ onSelectIncident }: IncidentsDashboardP
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
         <KpiCard
-          label="Open incidents"
+          label="Open Incidents"
           value={kpis.openCount}
           helper="Open, investigating, or monitoring — needs ownership."
           tone="critical"
         />
         <KpiCard
-          label="Critical"
+          label="Critical Incidents"
           value={kpis.criticalCount}
-          helper="Severest tier in the current dataset."
+          helper="Severest tier in the current filtered set."
           tone="critical"
         />
         <KpiCard
-          label="Resolved today"
+          label="Resolved Today"
           value={kpis.resolvedTodayCount}
-          helper="Marked resolved with timestamp today."
+          helper="Marked resolved with a timestamp today."
           tone="positive"
         />
       </div>
+
+      <IncidentFiltersBar filters={filters} onChange={handleFilterChange} onReset={handleResetFilters} />
 
       {error ? (
         <div className="rounded-xl border border-sev-critical/35 bg-sev-critical/10 px-4 py-3 text-sm text-sev-critical">
@@ -96,8 +103,8 @@ export function IncidentsDashboardPage({ onSelectIncident }: IncidentsDashboardP
         <LoadingState />
       ) : incidents.length === 0 ? (
         <EmptyState
-          title="No incidents on the board"
-          description="Declared incidents from alert investigations will surface here. The alert stream remains the upstream intake."
+          title="No incidents match these filters"
+          description="Confirmed operational incidents appear here after declaration from an alert or manual creation. Adjust filters or declare an incident from an alert investigation."
         />
       ) : (
         <IncidentsTable incidents={incidents} onSelect={onSelectIncident} />

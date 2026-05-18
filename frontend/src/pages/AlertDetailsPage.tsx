@@ -221,6 +221,25 @@ export function AlertDetailsPage({
                 <span className="rounded-md border border-ops-border bg-ops-elevated px-2.5 py-1 text-2xs font-medium text-ops-muted">
                   {alert.source}
                 </span>
+                <span className="hidden h-6 w-px bg-ops-border sm:block" aria-hidden />
+                {alert.relatedIncidentId ? (
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToIncident(alert.relatedIncidentId!)}
+                    className="rounded-lg border border-sev-critical/40 bg-sev-critical/15 px-4 py-2 text-sm font-semibold text-sev-critical transition hover:bg-sev-critical/25"
+                  >
+                    Linked incident #{alert.relatedIncidentId.slice(-8)}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsDeclareModalOpen(true)}
+                    disabled={alert.status === 'Closed'}
+                    className="rounded-lg bg-sev-critical px-4 py-2 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(239,68,68,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {alert.status === 'Closed' ? 'Declare incident (closed)' : 'Declare incident'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -353,7 +372,9 @@ export function AlertDetailsPage({
             >
               {alert.relatedIncidentId ? (
                 <div className="rounded-lg border border-ops-border bg-ops-canvas/50 p-4">
-                  <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">Linked</p>
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-ops-muted">
+                    Linked incident
+                  </p>
                   <p className="mt-1 font-mono text-lg font-semibold text-ops-foreground">
                     #{alert.relatedIncidentId.slice(-8)}
                   </p>
@@ -396,7 +417,7 @@ export function AlertDetailsPage({
       <DeclareIncidentModal
         open={isDeclareModalOpen}
         alert={alert}
-        reportedBy={operatorName}
+        initialReportedBy={operatorName}
         onClose={() => setIsDeclareModalOpen(false)}
         onSubmit={handleDeclareIncident}
       />

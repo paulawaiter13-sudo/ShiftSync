@@ -7,8 +7,16 @@ export type IncidentCategory =
   | 'Application'
   | 'Security'
   | 'Database'
-  | 'Third-Party'
+  | 'ThirdParty'
   | 'Other';
+
+/** Human-readable category for tables and selects */
+export function formatIncidentCategory(category: IncidentCategory): string {
+  if (category === 'ThirdParty') {
+    return 'Third-party';
+  }
+  return category;
+}
 export type IncidentEnvironment = 'Production' | 'Staging' | 'Internal' | 'Other';
 
 export interface IncidentSourceAlertSummary {
@@ -64,7 +72,7 @@ export interface CreateIncidentPayload {
   environment: IncidentEnvironment;
   reportedBy: string;
   assignedTo?: string | null;
-  status?: IncidentStatus;
+  status: IncidentStatus;
 }
 
 export interface CreateIncidentFromAlertPayload {
@@ -107,7 +115,7 @@ export const INCIDENT_CATEGORIES: IncidentCategory[] = [
   'Application',
   'Security',
   'Database',
-  'Third-Party',
+  'ThirdParty',
   'Other'
 ];
 

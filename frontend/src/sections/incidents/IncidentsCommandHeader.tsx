@@ -12,7 +12,8 @@ export function IncidentsCommandHeader() {
             Incidents
           </h1>
           <p className="mt-1.5 max-w-2xl text-xs leading-relaxed text-ops-muted sm:text-[13px]">
-            Production-impacting issues under managed response. Heavier visual weight than alerts — scan for ownership and severity first.
+            Confirmed operational incidents only — declared after investigation when impact is critical
+            or operationally significant. Upstream alert intake stays separate on the Alerts board.
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-1.5 rounded-md border border-ops-border bg-ops-panel/90 px-3 py-2 shadow-card sm:min-w-[12rem] sm:px-3.5 sm:py-2.5">

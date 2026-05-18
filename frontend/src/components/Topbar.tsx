@@ -6,7 +6,7 @@ const timeFmt = new Intl.DateTimeFormat('en-US', {
 });
 
 interface TopbarProps {
-  context: 'alerts' | 'incidents';
+  context: 'alerts' | 'investigations' | 'incidents' | 'handover';
   onOpenNavigation?: () => void;
 }
 
@@ -14,7 +14,11 @@ export function Topbar({ context, onOpenNavigation }: TopbarProps) {
   const subtitle =
     context === 'incidents'
       ? 'Incident command — production-impacting workstreams'
-      : 'Alert intake — triage and investigation before incident promotion';
+      : context === 'handover'
+        ? 'Shift handover — structured turnover for the next operator'
+        : context === 'investigations'
+          ? 'Active investigations — notes, status, and escalation paths'
+          : 'Alert intake — triage and investigation before incident promotion';
 
   return (
     <header className="sticky top-0 z-30 flex min-h-[3rem] shrink-0 items-center gap-3 border-b border-ops-border bg-ops-canvas/95 px-3 py-2 backdrop-blur-md sm:min-h-[3.25rem] sm:px-4 lg:px-6">
